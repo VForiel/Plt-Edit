@@ -150,6 +150,54 @@ def load(path: Union[str, os.PathLike]) -> Figure:
             "The deserialized object is not a matplotlib Figure."
         )
 
+    # Cross-version compatibility patch (e.g., matplotlib 3.9 -> 3.10+)
+    # Matplotlib 3.10+ added the `_parent_figure` attribute to Artist and `_root_figure` to Figure.
+    # Older pickled figures won't have it, so we inject it.
+    if not hasattr(fig, '_root_figure'):
+        fig._root_figure = fig
+
+    def patch_artist(artist, parent_fig, seen=None):
+        if seen is None:
+            seen = set()
+        if id(artist) in seen:
+            return
+        seen.add(id(artist))
+        
+        if not hasattr(artist, '_parent_figure'):
+            artist._parent_figure = parent_fig
+            
+        # In case of subfigures
+        if type(artist).__name__ == "SubFigure" and not hasattr(artist, '_root_figure'):
+            artist._root_figure = parent_fig
+            
+        if hasattr(artist, 'get_children'):
+            for child in artist.get_children():
+                patch_artist(child, parent_fig, seen)
+                
+        # Handle Axes specific missing attributes
+        if isinstance(artist, matplotlib.axis.Axis):
+            if not hasattr(artist, '_converter'):
+                artist._converter = None
+            if not hasattr(artist, 'units'):
+                artist.units = None
+            if not hasattr(artist, '_converter_is_explicit'):
+                artist._converter_is_explicit = False
+            # Explicitly patch ticks which might not be returned by get_children
+            for attr in ['majorTicks', 'minorTicks']:
+                if hasattr(artist, attr):
+                    for tick in getattr(artist, attr):
+                        patch_artist(tick, parent_fig, seen)
+                        
+        # Explicitly patch Tick internals (label1, label2, etc.)
+        if isinstance(artist, matplotlib.axis.Tick):
+            for attr in ['tick1line', 'tick2line', 'gridline', 'label1', 'label2']:
+                if hasattr(artist, attr):
+                    child = getattr(artist, attr)
+                    if child is not None:
+                        patch_artist(child, parent_fig, seen)
+    
+    patch_artist(fig, fig)
+
     import matplotlib.pyplot as plt
     dummy = plt.figure()
     new_manager = dummy.canvas.manager

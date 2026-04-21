@@ -256,6 +256,7 @@ def _editing_controls(fig: plt.Figure) -> plt.Figure:
 def file_explorer():
     """Render a simple file explorer for .plt files."""
     st.subheader("📁 Local File Explorer")
+    st.markdown("Please note that if you are using this app online, you will only see the server files, not your own files. Use the upload button above to upload your own files.")
     
     if "current_dir" not in st.session_state:
         st.session_state.current_dir = Path.cwd()
