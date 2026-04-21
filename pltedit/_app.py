@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 from pltedit._io import load, get_metadata
+from pltedit._style import set_style
 
 
 def _sidebar_metadata(meta: dict) -> None:
@@ -38,6 +39,17 @@ def _editing_controls(fig: plt.Figure) -> plt.Figure:
 
     st.sidebar.divider()
     st.sidebar.subheader("Edit figure")
+
+    # -- Global Style -------------------------------------------------------
+    current_style = "default"
+    available_styles = ["default"] + plt.style.available
+    selected_style = st.sidebar.selectbox("Matplotlib style", available_styles, index=0)
+    if selected_style != "default":
+        fig = set_style(fig, selected_style)
+        # Update axes reference after regenerating the figure
+        axes = fig.get_axes()
+        if not axes:
+            return fig
 
     # -- Figure title -------------------------------------------------------
     current_suptitle = fig._suptitle.get_text() if fig._suptitle else ""

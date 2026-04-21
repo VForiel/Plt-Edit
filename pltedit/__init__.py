@@ -22,6 +22,7 @@ Basic usage::
 """
 
 from pltedit._io import save, load
+from pltedit._style import set_style
 from pltedit._version import __version__
 
-__all__ = ["save", "load", "__version__"]
+__all__ = ["save", "load", "set_style", "__version__"]
