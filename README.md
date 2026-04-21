@@ -1,9 +1,9 @@
-# Plt-Edit
+# PltEdit
 A simple tool to save matplotlib figures as a unique file and edit them afterward while keeping data integrity
 
 ## Overview
 
-**Plt-Edit** is a Python package that lets you save a `matplotlib` figure (or axes) — including all its underlying data — to a single `.plt` file, and reload it in another Python session or in a Streamlit-based GUI.
+**PltEdit** is a Python package that lets you save a `matplotlib` figure (or axes) — including all its underlying data — to a single `.plt` file, and reload it in another Python session or in a Streamlit-based GUI.
 
 Unlike `matplotlib`'s built-in `savefig()` (which exports to raster/vector image formats), a `.plt` file preserves the full figure object so it can be displayed, inspected, and edited programmatically.
 
@@ -31,10 +31,10 @@ The metadata JSON includes:
 
 ```bash
 # Core library only
-pip install plt-edit
+pip install pltedit
 
 # With the Streamlit GUI
-pip install plt-edit[app]
+pip install pltedit[app]
 ```
 
 ## Usage
@@ -90,8 +90,8 @@ The GUI lets you:
 ## Development
 
 ```bash
-git clone https://github.com/VForiel/Plt-Edit.git
-cd Plt-Edit
+git clone https://github.com/VForiel/PltEdit.git
+cd PltEdit
 pip install -e ".[dev]"
 pytest
 ```

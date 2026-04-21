@@ -15,7 +15,7 @@ A .plt file is a NumPy archive (.npz) renamed to .plt.  It contains:
   ``matplotlib_version``
       Matplotlib version string (e.g. ``"3.10.1"``).
   ``pltedit_version``
-      Plt-Edit version string (e.g. ``"0.1.0"``).
+      PltEdit version string (e.g. ``"0.1.0"``).
 """
 
 from __future__ import annotations

@@ -41,8 +41,8 @@ dev = [
 pltedit = "pltedit._cli:main"
 
 [project.urls]
-Homepage = "https://github.com/VForiel/Plt-Edit"
-Repository = "https://github.com/VForiel/Plt-Edit"
+Homepage = "https://github.com/VForiel/PltEdit"
+Repository = "https://github.com/VForiel/PltEdit"
 
 [tool.setuptools.packages.find]
 where = ["."]

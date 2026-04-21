@@ -1,9 +1,9 @@
 """
-CLI entry point for plt-edit.
+CLI entry point for pltedit.
 
 Usage::
 
-    plt-edit [path/to/file.plt] [streamlit options]
+    pltedit [path/to/file.plt] [streamlit options]
 """
 
 from __future__ import annotations
@@ -13,13 +13,13 @@ from pathlib import Path
 
 
 def main() -> None:
-    """Launch the Plt-Edit Streamlit application."""
+    """Launch the PltEdit Streamlit application."""
     try:
         from streamlit.web import cli as stcli
     except ImportError as exc:
         print(
-            "Streamlit is required to run the plt-edit GUI.\n"
-            "Install it with:  pip install plt-edit[app]",
+            "Streamlit is required to run the pltedit GUI.\n"
+            "Install it with:  pip install pltedit[app]",
             file=sys.stderr,
         )
         raise SystemExit(1) from exc

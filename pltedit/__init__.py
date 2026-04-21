@@ -1,14 +1,14 @@
 """
-Plt-Edit: Save and load matplotlib figures as .plt files.
+PltEdit: Save and load matplotlib figures as .plt files.
 
 The .plt file format is a NumPy archive (.npz) with a .plt extension
 that stores the serialized figure along with metadata (creation date,
-Python version, matplotlib version, and Plt-Edit version).
+Python version, matplotlib version, and PltEdit version).
 
 Basic usage::
 
     import matplotlib.pyplot as plt
-    import plt_edit
+    import pltedit
 
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [4, 5, 6])

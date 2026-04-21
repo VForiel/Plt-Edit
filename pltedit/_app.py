@@ -1,13 +1,13 @@
 """
-Streamlit GUI for Plt-Edit.
+Streamlit GUI for PltEdit.
 
 Launch with::
 
-    plt-edit [path/to/file.plt]
+    pltedit [path/to/file.plt]
 
 or simply::
 
-    plt-edit
+    pltedit
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _display_metadata(meta: dict) -> None:
         st.text(f"Created at:  {meta.get('created_at', 'N/A')}")
         st.text(f"Python:      {meta.get('python_version', 'N/A')}")
         st.text(f"Matplotlib:  {meta.get('matplotlib_version', 'N/A')}")
-        st.text(f"Plt-Edit:    {meta.get('plt_edit_version', 'N/A')}")
+        st.text(f"PltEdit:    {meta.get('plt_edit_version', 'N/A')}")
 
 
 def _editing_controls(fig: plt.Figure) -> plt.Figure:
@@ -320,12 +320,12 @@ def file_explorer():
 
 def main() -> None:
     st.set_page_config(
-        page_title="Plt-Edit",
+        page_title="PltEdit",
         page_icon="📊",
         layout="wide",
     )
 
-    st.title("📊 Plt-Edit")
+    st.title("📊 PltEdit")
 
     tabs = ["📁 File Explorer", "🖌️ Editor"]
     
