@@ -15,6 +15,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Add the repository root to sys.path to allow absolute imports when run as a script
+_repo_root = Path(__file__).parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
 import matplotlib
 matplotlib.use("Agg")  # Prevent Tkinter thread crashes in Streamlit
 
