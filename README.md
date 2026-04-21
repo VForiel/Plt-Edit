@@ -55,7 +55,12 @@ plte.save(fig, "my_figure.plt")
 
 # Load in another session
 fig2 = plte.load("my_figure.plt")
-plt.show()
+
+# Change style
+fig2 = plte.set_style(fig2, "seaborn-v0_8")
+
+# Display
+fig2.show()
 
 # Inspect metadata
 from pltedit._io import get_metadata

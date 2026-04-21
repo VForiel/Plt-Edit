@@ -53,32 +53,58 @@ def _editing_controls(fig: plt.Figure) -> plt.Figure:
         if not axes:
             return fig
 
+    # -- Figure Settings ----------------------------------------------------
+    orig_w, orig_h = fig.get_size_inches()
+    c_w, c_h = st.sidebar.columns(2)
+    new_w = c_w.number_input("Fig Width", value=float(orig_w), format="%g")
+    new_h = c_h.number_input("Fig Height", value=float(orig_h), format="%g")
+    if new_w != orig_w or new_h != orig_h:
+        fig.set_size_inches(new_w, new_h)
+
     # -- Figure title -------------------------------------------------------
+    c_t1, c_t2 = st.sidebar.columns([3, 1])
     current_suptitle = fig._suptitle.get_text() if fig._suptitle else ""
-    new_suptitle = st.sidebar.text_input("Figure title (suptitle)", value=current_suptitle)
-    if new_suptitle != current_suptitle:
-        fig.suptitle(new_suptitle)
+    current_suptitle_size = fig._suptitle.get_fontsize() if fig._suptitle else 14.0
+    new_suptitle = c_t1.text_input("Figure title", value=current_suptitle)
+    new_suptitle_size = c_t2.number_input("Size", value=float(current_suptitle_size), key="fig_title_size")
+    if new_suptitle != current_suptitle or new_suptitle_size != current_suptitle_size:
+        fig.suptitle(new_suptitle, size=new_suptitle_size)
 
     # -- Per-axes controls --------------------------------------------------
     for i, ax in enumerate(axes):
         label = f"Axes {i + 1}"
         with st.sidebar.expander(label, expanded=(i == 0)):
             # Title
-            title = st.text_input("Title", value=ax.get_title(), key=f"ax{i}_title")
-            if title != ax.get_title():
-                ax.set_title(title)
+            c_t1, c_t2 = st.columns([3, 1])
+            title = c_t1.text_input("Title", value=ax.get_title(), key=f"ax{i}_title")
+            tsize = c_t2.number_input("Size", value=float(ax.title.get_fontsize()), key=f"ax{i}_tsize")
+            ax.set_title(title, fontsize=tsize)
 
             # X label
-            xlabel = st.text_input("X label", value=ax.get_xlabel(), key=f"ax{i}_xlabel")
-            if xlabel != ax.get_xlabel():
-                ax.set_xlabel(xlabel)
+            c_xl1, c_xl2 = st.columns([3, 1])
+            xlabel = c_xl1.text_input("X label", value=ax.get_xlabel(), key=f"ax{i}_xlabel")
+            xlsize = c_xl2.number_input("Size", value=float(ax.xaxis.label.get_fontsize()), key=f"ax{i}_xlsize")
+            ax.set_xlabel(xlabel, fontsize=xlsize)
 
             # Y label
-            ylabel = st.text_input("Y label", value=ax.get_ylabel(), key=f"ax{i}_ylabel")
-            if ylabel != ax.get_ylabel():
-                ax.set_ylabel(ylabel)
+            c_yl1, c_yl2 = st.columns([3, 1])
+            ylabel = c_yl1.text_input("Y label", value=ax.get_ylabel(), key=f"ax{i}_ylabel")
+            ylsize = c_yl2.number_input("Size", value=float(ax.yaxis.label.get_fontsize()), key=f"ax{i}_ylsize")
+            ax.set_ylabel(ylabel, fontsize=ylsize)
 
-            # X limits
+            st.divider()
+            
+            # Scales
+            scales = ["linear", "log", "symlog", "logit"]
+            c_s1, c_s2 = st.columns(2)
+            curr_xscale = ax.get_xscale()
+            curr_yscale = ax.get_yscale()
+            xscale = c_s1.selectbox("X scale", scales, index=scales.index(curr_xscale) if curr_xscale in scales else 0, key=f"ax{i}_xscale")
+            yscale = c_s2.selectbox("Y scale", scales, index=scales.index(curr_yscale) if curr_yscale in scales else 0, key=f"ax{i}_yscale")
+            ax.set_xscale(xscale)
+            ax.set_yscale(yscale)
+
+            # Limits
             xlim = ax.get_xlim()
             col1, col2 = st.columns(2)
             xmin = col1.number_input("X min", value=float(xlim[0]), key=f"ax{i}_xmin", format="%g")
@@ -86,13 +112,98 @@ def _editing_controls(fig: plt.Figure) -> plt.Figure:
             if xmin != xlim[0] or xmax != xlim[1]:
                 ax.set_xlim(xmin, xmax)
 
-            # Y limits
             ylim = ax.get_ylim()
             col3, col4 = st.columns(2)
             ymin = col3.number_input("Y min", value=float(ylim[0]), key=f"ax{i}_ymin", format="%g")
             ymax = col4.number_input("Y max", value=float(ylim[1]), key=f"ax{i}_ymax", format="%g")
             if ymin != ylim[0] or ymax != ylim[1]:
                 ax.set_ylim(ymin, ymax)
+
+            st.divider()
+
+            # Grid & Legend
+            c_opts1, c_opts2 = st.columns(2)
+            
+            # Matplotlib internal property for grid might not be exposed reliably, safe check:
+            is_grid = False
+            if hasattr(ax.xaxis, '_gridOnMajor'):
+                is_grid = ax.xaxis._gridOnMajor or ax.yaxis._gridOnMajor 
+            has_grid = c_opts1.checkbox("Grid", value=is_grid, key=f"ax{i}_grid")
+            ax.grid(has_grid)
+            
+            has_legend = ax.get_legend() is not None
+            show_leg = c_opts2.checkbox("Legend", value=has_legend, key=f"ax{i}_leg")
+            
+            locs = ["best", "upper right", "upper left", "lower left", "lower right", "right", "center left", "center right", "lower center", "upper center", "center"]
+            if show_leg:
+                leg_loc_curr = ax.get_legend()._loc if has_legend else 0
+                if isinstance(leg_loc_curr, int):
+                    leg_loc_curr = locs[leg_loc_curr] if leg_loc_curr < len(locs) else "best"
+                loc_idx = locs.index(leg_loc_curr) if leg_loc_curr in locs else 0
+                leg_loc = st.selectbox("Legend location", locs, index=loc_idx, key=f"ax{i}_legloc")
+                ax.legend(loc=leg_loc)
+            else:
+                leg = ax.get_legend()
+                if leg:
+                    leg.remove()
+
+            # Ticks settings
+            with st.expander("Ticks settings"):
+                c_tkx, c_tky = st.columns(2)
+                
+                # X Ticks
+                x_ticks = ax.get_xticks()
+                x_ticklabels = [t.get_text() for t in ax.get_xticklabels()]
+                xt_str = ", ".join([str(v) for v in x_ticks])
+                xtl_str = ", ".join(x_ticklabels) if x_ticklabels and any(x_ticklabels) else ""
+                
+                xt_input = c_tkx.text_input("X Ticks (csv)", value=xt_str, key=f"ax{i}_xt")
+                xtl_input = c_tkx.text_input("X Labels (csv)", value=xtl_str, key=f"ax{i}_xtl")
+                
+                t_fs_x = 10.0
+                if ax.get_xticklabels():
+                    t_fs_x = float(ax.get_xticklabels()[0].get_fontsize())
+                xt_size = c_tkx.number_input("X Tick Size", value=t_fs_x, key=f"ax{i}_xts")
+                
+                try:
+                    if xt_input and xt_input != xt_str:
+                        new_xticks = [float(x.strip()) for x in xt_input.split(",") if x.strip()]
+                        ax.set_xticks(new_xticks)
+                except ValueError: pass
+                
+                if xtl_input and xtl_input != xtl_str:
+                    new_xlabels = [x.strip() for x in xtl_input.split(",")]
+                    if len(new_xlabels) == len(ax.get_xticks()):
+                        ax.set_xticklabels(new_xlabels)
+                        
+                ax.tick_params(axis='x', labelsize=xt_size)
+                
+                # Y Ticks
+                y_ticks = ax.get_yticks()
+                y_ticklabels = [t.get_text() for t in ax.get_yticklabels()]
+                yt_str = ", ".join([str(v) for v in y_ticks])
+                ytl_str = ", ".join(y_ticklabels) if y_ticklabels and any(y_ticklabels) else ""
+                
+                yt_input = c_tky.text_input("Y Ticks (csv)", value=yt_str, key=f"ax{i}_yt")
+                ytl_input = c_tky.text_input("Y Labels (csv)", value=ytl_str, key=f"ax{i}_ytl")
+                
+                t_fs_y = 10.0
+                if ax.get_yticklabels():
+                    t_fs_y = float(ax.get_yticklabels()[0].get_fontsize())
+                yt_size = c_tky.number_input("Y Tick Size", value=t_fs_y, key=f"ax{i}_yts")
+                
+                try:
+                    if yt_input and yt_input != yt_str:
+                        new_yticks = [float(y.strip()) for y in yt_input.split(",") if y.strip()]
+                        ax.set_yticks(new_yticks)
+                except ValueError: pass
+                
+                if ytl_input and ytl_input != ytl_str:
+                    new_ylabels = [y.strip() for y in ytl_input.split(",")]
+                    if len(new_ylabels) == len(ax.get_yticks()):
+                        ax.set_yticklabels(new_ylabels)
+                        
+                ax.tick_params(axis='y', labelsize=yt_size)
 
     return fig
 
