@@ -87,6 +87,45 @@ The GUI lets you:
 - View the stored figure metadata
 - Edit the figure title, axis labels, and axis limits interactively
 
+### Desktop application (preview)
+
+The desktop application is a native Electron editor. It does not embed Streamlit: a
+small local Python service loads the trusted Matplotlib figure, exposes its editable
+model, renders previews, and performs saves and exports. The Streamlit GUI remains
+available as the legacy interface.
+
+Install the Python GUI dependency and the desktop dependencies:
+
+```bash
+pip install -e ".[app]"
+cd desktop
+npm install
+```
+
+Launch the desktop application with:
+
+```bash
+npm start
+```
+
+The desktop service uses `python` from `PATH`. Set `PLTEDIT_PYTHON` to the full path of
+another interpreter when needed, for example:
+
+```powershell
+$env:PLTEDIT_PYTHON = "C:\\path\\to\\python.exe"
+npm start
+```
+
+To build a Windows installer (`desktop/dist/PltEdit Setup*.exe`):
+
+```bash
+npm run package
+```
+
+The installer expects `pltedit` and its Python dependencies to be available on the
+machine. Set `PLTEDIT_COMMAND` if the command is installed under a different name or
+needs a custom launcher.
+
 ## Development
 
 ```bash

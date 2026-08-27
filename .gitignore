@@ -30,3 +30,7 @@ Thumbs.db
 
 # Virtual environments
 .venv/
+
+# Electron desktop build output
+desktop/node_modules/
+desktop/dist/
